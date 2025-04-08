@@ -1,5 +1,5 @@
 name: "Setup CI Environment"
-author: "aarkegz et al. @ arceos-org"
+author: "equation314, aarkegz et al. @ arceos-org"
 description: "Setup the CI environment for ArceOS-related projects"
 
 
@@ -42,6 +42,7 @@ runs:
   ##################################################################################################
   - name: Check inputs
     run: |
+      : Check inputs
       # Set up environment variables
       echo "COLOR_YELLOW=\033[93;1m" >> $GITHUB_ENV
       echo "COLOR_GREEN=\033[92;1m" >> $GITHUB_ENV
