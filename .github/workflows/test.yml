@@ -1,0 +1,25 @@
+name: Test CI
+
+on: [push, pull_request]
+
+jobs:
+  test_rust_installation:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Install Rust toolchain
+      uses: ./
+      with:
+        arch: x86_64
+        rust-components: rust-src
+    - name: Test Rust installation
+      run: |
+        rustc --version
+        cargo --version
+        rustup target list --installed
+    - name: Test Rust Compilation
+      run: |
+        echo "fn main() { println!(\"Hello, world!\"); }" > hello.rs
+        rustc hello.rs -o hello
+        ./hello

@@ -1,0 +1,83 @@
+name: "Setup CI Environment"
+author: "aarkegz et al. @ arceos-org"
+description: "Setup the CI environment for ArceOS-related projects"
+
+inputs:
+  arch:
+    description: |
+      The target architecture.
+      Currently supported: `x86_64`, `riscv64`, `aarch64`, to be supported: `loongarch64`".
+    required: false
+    # Default to x86_64 because it's the host architecture and used for doc and unit tests
+    default: "x86_64"
+  rust-toolchain:
+    description: |
+      Rust toolchain version to install, set it to 'none' to skip Rust toolchain installation.
+    required: false
+    default: "nightly"
+  rust-components:
+    description: |
+      Rustup components to install, separated by commas.
+    required: false
+    default: "rust-src"
+  rust-targets:
+    description: |
+      Rust targets to install, separated by commas, leave it empty to auto-detect from `arch`.
+    required: false
+    default: ""
+  qemu:
+    description: |
+      QEMU version to install, set it to 'none' to skip QEMU installation.
+    required: true
+    default: "9.2.3"    # The latest stable version of QEMU as of the date this file was created
+
+runs:
+  using: "composite"
+  steps:
+  # Rust toolchain
+  - name: Determine Rust targets
+    if: ${{ inputs.rust-toolchain != 'none' }}
+    run: |
+      if [ "${{ inputs.rust-targets }}" == "" ]; then
+        case "${{ inputs.arch }}" in
+          x86_64)
+            echo "RUST_TARGETS=x86_64-unknown-linux-gnu,x86_64-unknown-none" >> $GITHUB_ENV
+            ;;
+          riscv64)
+            echo "RUST_TARGETS=riscv64gc-unknown-none-elf" >> $GITHUB_ENV
+            ;;
+          aarch64)
+            echo "RUST_TARGETS=aarch64-unknown-linux-gnu,aarch64-unknown-none" >> $GITHUB_ENV
+            ;;
+          *)
+            echo "Unsupported architecture: ${{ inputs.arch }}"
+            exit 1
+            ;;
+        esac
+      else
+        echo "RUST_TARGETS=${{ inputs.rust-targets }}" >> $GITHUB_ENV
+      fi
+  - name: Install Rust toolchain
+    if: ${{ inputs.rust-toolchain != 'none' }}
+    uses: dtolnay/rust-toolchain@stable
+    with:
+      toolchain: ${{ inputs.rust-toolchain }}
+      components: ${{ inputs.rust-components }}
+      targets: ${{ env.RUST_TARGETS }}
+  - name: Install cargo-binutils
+    if: ${{ inputs.rust-toolchain != 'none' }}
+    run: cargo install cargo-binutils
+  - name: Check Rust toolchain
+    if: ${{ inputs.rust-toolchain != 'none' }}
+    run: |
+      rustup show
+      rustc --version
+      cargo --version
+      cargo +${{ inputs.rust-toolchain }} --version
+  # QEMU
+  - name: Install QEMU
+    if: ${{ inputs.qemu != 'none' }}
+    run: |
+      echo "Installing QEMU version ${{ inputs.qemu }}"
+      echo "To be implemented"
+  
