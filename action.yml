@@ -3,9 +3,9 @@ author: "aarkegz et al. @ arceos-org"
 description: "Setup the CI environment for ArceOS-related projects"
 
 env:
-  COLOR_YELLOW: "\\033[0;33m"
-  COLOR_GREEN: "\\033[0;32m"
-  COLOR_RED: "\\033[0;31m"
+  COLOR_YELLOW: "\\033[93;1m"
+  COLOR_GREEN: "\\033[92;1m"
+  COLOR_RED: "\\033[91;1m"
   COLOR_BOLD: "\\033[1m"
   COLOR_CLEAR: "\\033[0m"
 
@@ -61,7 +61,7 @@ runs:
             echo "RUST_TARGETS=aarch64-unknown-linux-gnu,aarch64-unknown-none" >> $GITHUB_ENV
             ;;
           *)
-            echo -e "Unsupported architecture: ${COLOR_RED}${COLOR_BOLD}${{ inputs.arch }}${COLOR_CLEAR}"
+            echo -e "Unsupported architecture: ${COLOR_RED}${{ inputs.arch }}${COLOR_CLEAR}"
             exit 1
             ;;
         esac
@@ -73,22 +73,23 @@ runs:
   - name: Print actions to be performed
     run: |
       : Print the actions to be performed
-      echo -e "arch: ${COLOR_GREEN}${COLOR_BOLD}${{ inputs.arch }}${COLOR_CLEAR}"
+      echo -e "\033[33;1mActions to be performed\033[0m:"
+      echo -e "arch: ${COLOR_GREEN}${{ inputs.arch }}${COLOR_CLEAR}"
       
       if [ "${{ inputs.rust-toolchain }}" != "none" ]; then
-        echo -e "rust-toolchain: ${COLOR_GREEN}${COLOR_BOLD}yes${COLOR_CLEAR}"
+        echo -e "rust-toolchain: ${COLOR_GREEN}yes${COLOR_CLEAR}"
         echo -e "  version: ${COLOR_BOLD}${{ inputs.rust-toolchain }}${COLOR_CLEAR}"
         echo -e "  components: ${COLOR_BOLD}${{ inputs.rust-components }}${COLOR_CLEAR}"
         echo -e "  targets: ${COLOR_BOLD}${{ env.RUST_TARGETS }}${COLOR_CLEAR}"
       else
-        echo -e "rust-toolchain: ${COLOR_YELLOW}${COLOR_BOLD}no${COLOR_CLEAR}"
+        echo -e "rust-toolchain: ${COLOR_YELLOW}no${COLOR_CLEAR}"
       fi
 
       if [ "${{ inputs.qemu }}" != "none" ]; then
-        echo -e "qemu: ${COLOR_GREEN}${COLOR_BOLD}yes${COLOR_CLEAR}"
+        echo -e "qemu: ${COLOR_GREEN}yes${COLOR_CLEAR}"
         echo -e "  version: ${COLOR_BOLD}${{ inputs.qemu }}${COLOR_CLEAR}"
       else
-        echo -e "qemu: ${COLOR_YELLOW}${COLOR_BOLD}no${COLOR_CLEAR}"
+        echo -e "qemu: ${COLOR_YELLOW}no${COLOR_CLEAR}"
       fi
     shell: bash
 
