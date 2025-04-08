@@ -76,6 +76,7 @@ runs:
     run: |
       : Print the actions to be performed
       echo -e "\033[33;1mActions to be performed\033[0m:"
+      set
       echo -e "arch: ${COLOR_GREEN}${{ inputs.arch }}${COLOR_CLEAR}"
       
       if [ "${{ inputs.rust-toolchain }}" != "none" ]; then
