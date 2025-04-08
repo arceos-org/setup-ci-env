@@ -15,11 +15,13 @@ jobs:
         rust-components: rust-src
     - name: Test Rust installation
       run: |
+        : Check if Rust is installed and the correct version
         rustc --version
         cargo --version
         rustup target list --installed
     - name: Test Rust Compilation
       run: |
+        : Create a simple Rust program to test the installation
         echo "fn main() { println!(\"Hello, world!\"); }" > hello.rs
         rustc hello.rs -o hello
         ./hello

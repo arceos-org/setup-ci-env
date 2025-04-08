@@ -39,6 +39,7 @@ runs:
   - name: Determine Rust targets
     if: ${{ inputs.rust-toolchain != 'none' }}
     run: |
+      : Determine the Rust targets based on the architecture specified
       if [ "${{ inputs.rust-targets }}" == "" ]; then
         case "${{ inputs.arch }}" in
           x86_64)
@@ -68,11 +69,14 @@ runs:
       targets: ${{ env.RUST_TARGETS }}
   - name: Install cargo-binutils
     if: ${{ inputs.rust-toolchain != 'none' }}
-    run: cargo install cargo-binutils
+    run: |
+      : Install cargo-binutils for the current Rust toolchain
+      cargo install cargo-binutils
     shell: bash
   - name: Check Rust toolchain
     if: ${{ inputs.rust-toolchain != 'none' }}
     run: |
+      : Check the installed Rust toolchain and components
       rustup show
       rustc --version
       cargo --version
@@ -82,6 +86,7 @@ runs:
   - name: Install QEMU
     if: ${{ inputs.qemu != 'none' }}
     run: |
+      : Install QEMU for the specified architecture
       echo "Installing QEMU version ${{ inputs.qemu }}"
       echo "To be implemented"
     shell: bash
