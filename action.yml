@@ -77,24 +77,23 @@ runs:
   - name: Print actions to be performed
     run: |
       : Print the actions to be performed
-      echo -e "\033[33;1mActions to be performed\033[0m:"
-      set
-      echo -e "arch: ${COLOR_GREEN}${{ inputs.arch }}${COLOR_CLEAR}"
+
+      echo -e "arch           : ${COLOR_GREEN}${{ inputs.arch }}${COLOR_CLEAR}"
       
       if [ "${{ inputs.rust-toolchain }}" != "none" ]; then
-        echo -e "rust-toolchain: ${COLOR_GREEN}yes${COLOR_CLEAR}"
-        echo -e "  version: ${COLOR_BOLD}${{ inputs.rust-toolchain }}${COLOR_CLEAR}"
-        echo -e "  components: ${COLOR_BOLD}${{ inputs.rust-components }}${COLOR_CLEAR}"
-        echo -e "  targets: ${COLOR_BOLD}${{ env.RUST_TARGETS }}${COLOR_CLEAR}"
+        echo -e "rust-toolchain : ${COLOR_GREEN}yes${COLOR_CLEAR}"
+        echo -e "  version      : ${COLOR_BOLD}${{ inputs.rust-toolchain }}${COLOR_CLEAR}"
+        echo -e "  components   : ${COLOR_BOLD}${{ inputs.rust-components }}${COLOR_CLEAR}"
+        echo -e "  targets      : ${COLOR_BOLD}${{ env.RUST_TARGETS }}${COLOR_CLEAR}"
       else
-        echo -e "rust-toolchain: ${COLOR_YELLOW}no${COLOR_CLEAR}"
+        echo -e "rust-toolchain : ${COLOR_RED}no${COLOR_CLEAR}"
       fi
 
       if [ "${{ inputs.qemu }}" != "none" ]; then
-        echo -e "qemu: ${COLOR_GREEN}yes${COLOR_CLEAR}"
-        echo -e "  version: ${COLOR_BOLD}${{ inputs.qemu }}${COLOR_CLEAR}"
+        echo -e "qemu           : ${COLOR_GREEN}yes${COLOR_CLEAR}"
+        echo -e "  version      : ${COLOR_BOLD}${{ inputs.qemu }}${COLOR_CLEAR}"
       else
-        echo -e "qemu: ${COLOR_YELLOW}no${COLOR_CLEAR}"
+        echo -e "qemu           : ${COLOR_RED}no${COLOR_CLEAR}"
       fi
     shell: bash
 
