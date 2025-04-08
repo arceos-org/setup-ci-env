@@ -40,19 +40,16 @@ runs:
   ##################################################################################################
   # Input processing and debugging
   ##################################################################################################
-  - name: Set up environment variables
+  - name: Check inputs
     run: |
-      : Set up environment variables
+      # Set up environment variables
       echo "COLOR_YELLOW=\033[93;1m" >> $GITHUB_ENV
       echo "COLOR_GREEN=\033[92;1m" >> $GITHUB_ENV
       echo "COLOR_RED=\033[91;1m" >> $GITHUB_ENV
       echo "COLOR_BOLD=\033[1m" >> $GITHUB_ENV
       echo "COLOR_CLEAR=\033[0m" >> $GITHUB_ENV
-    shell: bash
-  - name: Check target architecture
-    id: check-arch
-    run: |
-      : Determine the Rust targets based on the architecture specified
+      
+      # Determine the Rust targets based on the architecture specified
       if [ "${{ inputs.rust-targets }}" == "" ]; then
         case "${{ inputs.arch }}" in
           x86_64)
