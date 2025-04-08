@@ -2,14 +2,7 @@ name: "Setup CI Environment"
 author: "aarkegz et al. @ arceos-org"
 description: "Setup the CI environment for ArceOS-related projects"
 
-env:
-  COLOR_YELLOW: |
-    \033[93;1m"
-  COLOR_GREEN: "\033[92;1m"
-  COLOR_RED: "\033[91;1m"
-  COLOR_BOLD: "\033[1m"
-  COLOR_CLEAR: |
-    \033[0m"
+
 
 inputs:
   arch:
@@ -164,3 +157,12 @@ runs:
       : Verify QEMU installation
       qemu-system-${{ inputs.arch }} --version
     shell: bash
+
+  env:
+    COLOR_YELLOW: |
+      \033[93;1m"
+    COLOR_GREEN: "\\033[92;1m"
+    COLOR_RED: "\\033[91;1m"
+    COLOR_BOLD: "\\033[1m"
+    COLOR_CLEAR: |
+      \033[0m"
