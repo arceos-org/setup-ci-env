@@ -28,8 +28,9 @@ inputs:
   qemu:
     description: |
       QEMU version to install, set it to 'none' to skip QEMU installation.
-    required: true
-    default: "9.2.3"    # The latest stable version of QEMU as of the date this file was created
+    required: false
+    # The latest stable version of QEMU as of the date this file was created
+    default: "9.2.3"
 
 runs:
   using: "composite"
@@ -57,6 +58,7 @@ runs:
       else
         echo "RUST_TARGETS=${{ inputs.rust-targets }}" >> $GITHUB_ENV
       fi
+    shell: bash
   - name: Install Rust toolchain
     if: ${{ inputs.rust-toolchain != 'none' }}
     uses: dtolnay/rust-toolchain@stable
@@ -67,6 +69,7 @@ runs:
   - name: Install cargo-binutils
     if: ${{ inputs.rust-toolchain != 'none' }}
     run: cargo install cargo-binutils
+    shell: bash
   - name: Check Rust toolchain
     if: ${{ inputs.rust-toolchain != 'none' }}
     run: |
@@ -74,10 +77,11 @@ runs:
       rustc --version
       cargo --version
       cargo +${{ inputs.rust-toolchain }} --version
+    shell: bash
   # QEMU
   - name: Install QEMU
     if: ${{ inputs.qemu != 'none' }}
     run: |
       echo "Installing QEMU version ${{ inputs.qemu }}"
       echo "To be implemented"
-  
+    shell: bash
