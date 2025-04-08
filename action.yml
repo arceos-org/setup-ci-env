@@ -2,6 +2,13 @@ name: "Setup CI Environment"
 author: "aarkegz et al. @ arceos-org"
 description: "Setup the CI environment for ArceOS-related projects"
 
+env:
+  COLOR_YELLOW: "\\033[0;33m"
+  COLOR_GREEN: "\\033[0;32m"
+  COLOR_RED: "\\033[0;31m"
+  COLOR_BOLD: "\\033[1m"
+  COLOR_CLEAR: "\\033[0m"
+
 inputs:
   arch:
     description: |
@@ -35,9 +42,11 @@ inputs:
 runs:
   using: "composite"
   steps:
-  # Rust toolchain
-  - name: Determine Rust targets
-    if: ${{ inputs.rust-toolchain != 'none' }}
+  ##################################################################################################
+  # Input processing and debugging
+  ##################################################################################################
+  - name: Check target architecture
+    id: check-arch
     run: |
       : Determine the Rust targets based on the architecture specified
       if [ "${{ inputs.rust-targets }}" == "" ]; then
@@ -52,7 +61,7 @@ runs:
             echo "RUST_TARGETS=aarch64-unknown-linux-gnu,aarch64-unknown-none" >> $GITHUB_ENV
             ;;
           *)
-            echo "Unsupported architecture: ${{ inputs.arch }}"
+            echo -e "Unsupported architecture: ${COLOR_RED}${COLOR_BOLD}${{ inputs.arch }}${COLOR_CLEAR}"
             exit 1
             ;;
         esac
@@ -60,6 +69,32 @@ runs:
         echo "RUST_TARGETS=${{ inputs.rust-targets }}" >> $GITHUB_ENV
       fi
     shell: bash
+
+  - name: Print actions to be performed
+    run: |
+      : Print the actions to be performed
+      echo -e "arch: ${COLOR_GREEN}${COLOR_BOLD}${{ inputs.arch }}${COLOR_CLEAR}"
+      
+      if [ "${{ inputs.rust-toolchain }}" != "none" ]; then
+        echo -e "rust-toolchain: ${COLOR_GREEN}${COLOR_BOLD}yes${COLOR_CLEAR}"
+        echo -e "  version: ${COLOR_BOLD}${{ inputs.rust-toolchain }}${COLOR_CLEAR}"
+        echo -e "  components: ${COLOR_BOLD}${{ inputs.rust-components }}${COLOR_CLEAR}"
+        echo -e "  targets: ${COLOR_BOLD}${{ env.RUST_TARGETS }}${COLOR_CLEAR}"
+      else
+        echo -e "rust-toolchain: ${COLOR_YELLOW}${COLOR_BOLD}no${COLOR_CLEAR}"
+      fi
+
+      if [ "${{ inputs.qemu }}" != "none" ]; then
+        echo -e "qemu: ${COLOR_GREEN}${COLOR_BOLD}yes${COLOR_CLEAR}"
+        echo -e "  version: ${COLOR_BOLD}${{ inputs.qemu }}${COLOR_CLEAR}"
+      else
+        echo -e "qemu: ${COLOR_YELLOW}${COLOR_BOLD}no${COLOR_CLEAR}"
+      fi
+    shell: bash
+
+  ##################################################################################################
+  # Rust toolchain
+  ##################################################################################################
   - name: Install Rust toolchain
     if: ${{ inputs.rust-toolchain != 'none' }}
     uses: dtolnay/rust-toolchain@stable
@@ -82,11 +117,46 @@ runs:
       cargo --version
       cargo +${{ inputs.rust-toolchain }} --version
     shell: bash
+
+  ##################################################################################################
   # QEMU
+  ##################################################################################################
+  - name: Check QEMU Cache
+    id: cache-qemu
+    if: ${{ inputs.qemu != 'none' }}
+    uses: actions/cache/restore@v4
+    with:
+      path: qemu_build
+      key: qemu-${{ inputs.qemu }}-${{ inputs.arch }}-slirp-1
+  - name: Download and build QEMU
+    if: ${{ inputs.qemu != 'none' && steps.cache-qemu.outputs.cache-hit != 'true' }}
+    env:
+      QEMU_PATH: qemu-${{ inputs.qemu }}
+      PREFIX: ${{ github.workspace }}/qemu_build
+    run: |
+      : Download and build QEMU
+      sudo apt-get update && sudo apt-get install -y ninja-build libslirp-dev libglib2.0-dev
+      wget https://download.qemu.org/$QEMU_PATH.tar.xz && tar -xJf $QEMU_PATH.tar.xz
+      cd $QEMU_PATH \
+        && ./configure --prefix=$PREFIX --target-list=${{ inputs.arch }}-softmmu --enable-slirp \
+        && make -j > /dev/null 2>&1 \
+        && make install
+    shell: bash
+  - name: Cache QEMU
+    if: ${{ inputs.qemu != 'none' && steps.cache-qemu.outputs.cache-hit != 'true' }}
+    uses: actions/cache/save@v4
+    with:
+      path: qemu_build
+      key: qemu-${{ inputs.qemu }}-${{ inputs.arch }}-slirp-1
   - name: Install QEMU
     if: ${{ inputs.qemu != 'none' }}
     run: |
-      : Install QEMU for the specified architecture
-      echo "Installing QEMU version ${{ inputs.qemu }}"
-      echo "To be implemented"
+      : Install QEMU
+      echo "$PWD/qemu_build/bin" >> $GITHUB_PATH
+    shell: bash
+  - name: Verify QEMU installation
+    if: ${{ inputs.qemu != 'none' }}
+    run: |
+      : Verify QEMU installation
+      qemu-system-${{ inputs.arch }} --version
     shell: bash

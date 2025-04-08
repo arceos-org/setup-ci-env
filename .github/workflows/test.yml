@@ -3,7 +3,7 @@ name: Test CI
 on: [push, pull_request]
 
 jobs:
-  test_rust_installation:
+  test_just_rust_installation:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -13,6 +13,7 @@ jobs:
       with:
         arch: x86_64
         rust-components: rust-src
+        qemu: none
     - name: Test Rust installation
       run: |
         : Check if Rust is installed and the correct version
@@ -25,3 +26,19 @@ jobs:
         echo "fn main() { println!(\"Hello, world!\"); }" > hello.rs
         rustc hello.rs -o hello
         ./hello
+  
+  test_just_qemu_installation:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Install QEMU
+      uses: ./
+      with:
+        arch: aarch64
+        rust-toolchain: none
+        qemu: 8.2.0
+    - name: Test QEMU installation
+      run: |
+        : Check if QEMU is installed and the correct version
+        qemu-system-aarch64 --version
